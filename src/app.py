@@ -30,6 +30,7 @@ def EraseDuplicates(dataset, id = "id"):
         print ("Erase duplicates...")
         dataset.drop(id, axis = 1, inplace = True)
         dataset.drop_duplicates()
+        print(f"Total number of duplicates {dataset.duplicated().sum()}")
     else:
         print ("No coincidences.")
         dataset.drop(id, axis=1, inplace = True)
@@ -44,7 +45,7 @@ EraseDuplicates(data)
 print(data)
 
 #Funcion para eliminar datos irrelevantes.
-irrelevant_lst = ["name","host_id","host_name","neighbourhood","latitude","longitude","last_review","calculated_host_listings_count","reviews_per_month"]
+irrelevant_lst = ["name","host_id","host_name","neighbourhood","latitude","longitude","last_review","reviews_per_month"]
 
 def EraseIrrelevants(dataset, lst):
     older_shape = data.shape
@@ -60,11 +61,12 @@ print(data)
 # Analisis sobre variables categoricas
 def CategoricGraf(dataset):
     #Creamos la figura
-    fig, axis = plt.subplots(1, 2, figsize=(10,5))
+    fig, axis = plt.subplots(1, 3, figsize=(15,5))
 
     #Creamos las graficas necesarias
     sns.histplot( ax = axis[0], data = dataset, x = "neighbourhood_group")
-    sns.histplot( ax = axis[1], data = dataset, x = "room_type").set(ylabel=None)
+    sns.histplot( ax = axis[1], data = dataset, x = "room_type").set(ylabel = None)
+    sns.histplot( ax = axis[2], data = dataset, x = "availability_365").set(ylabel = None)
 
     #Mostramos el grafico.
     plt.tight_layout()
@@ -75,17 +77,17 @@ CategoricGraf(data)
 # Analisis sobre variables numericas
 def NumericalGraf(dataset):
     #Creamos la figura
-    fig, axis = plt.subplots(4, 2, figsize=(10,5), gridspec_kw={"height_ratios" : [6,1,6,1]})
+    fig, axis = plt.subplots(4, 2, figsize=(10,8), gridspec_kw={"height_ratios" : [6,1,6,1]})
 
     #Creamos las graficas necesarias
-    sns.kdeplot( ax = axis[0,0], data = dataset, x = "price").set(xlabel=None)
+    sns.histplot( ax = axis[0,0], data = dataset, x = "price", kde=True).set(xlabel=None)
     sns.boxplot( ax = axis[1,0], data = dataset, x = "price")
-    sns.kdeplot( ax = axis[0,1], data = dataset, x = "minimum_nights").set(ylabel=None, xlabel=None)
+    sns.histplot( ax = axis[0,1], data = dataset, x = "minimum_nights", kde=True).set(ylabel=None, xlabel=None)
     sns.boxplot( ax = axis[1,1], data = dataset, x = "minimum_nights")
-    sns.kdeplot( ax = axis[2,0], data = dataset, x = "number_of_reviews").set(xlabel=None)
+    sns.histplot( ax = axis[2,0], data = dataset, x = "number_of_reviews").set(xlabel=None)
     sns.boxplot(ax = axis[3,0], data = dataset, x = "number_of_reviews")
-    sns.kdeplot( ax = axis[2,1], data = dataset, x = "availability_365").set(ylabel=None, xlabel=None)
-    sns.boxplot( ax = axis[3,1], data = dataset, x = "availability_365")
+    sns.histplot( ax = axis[2,1], data = dataset, x = "calculated_host_listings_count", kde=True).set(ylabel=None, xlabel=None)
+    sns.boxplot( ax = axis[3,1], data = dataset, x = "calculated_host_listings_count")
     
     plt.tight_layout()
     plt.show()
@@ -94,17 +96,17 @@ NumericalGraf(data)
 
 def FiltNumericalGraf(dataset):
     #Creamos la figura
-    fig, axis = plt.subplots(4, 2, figsize=(10,5), gridspec_kw={"height_ratios" : [6,1,6,1]})
+    fig, axis = plt.subplots(4, 2, figsize=(10,8), gridspec_kw={"height_ratios" : [6,1,6,1]})
 
     #Creamos las graficas necesarias
-    sns.kdeplot( ax = axis[0,0], data = dataset[dataset["price"] < 500], x = "price").set(xlabel=None)
+    sns.histplot( ax = axis[0,0], data = dataset[dataset["price"] < 500], x = "price", kde=True).set(xlabel=None)
     sns.boxplot( ax = axis[1,0], data = dataset[dataset["price"] < 500], x = "price")
-    sns.kdeplot( ax = axis[0,1], data = dataset[dataset["minimum_nights"] < 20], x = "minimum_nights").set(ylabel=None, xlabel=None)
+    sns.histplot( ax = axis[0,1], data = dataset[dataset["minimum_nights"] < 20], x = "minimum_nights", kde=True).set(ylabel=None, xlabel=None)
     sns.boxplot( ax = axis[1,1], data = dataset[dataset["minimum_nights"] < 20], x = "minimum_nights")
-    sns.kdeplot( ax = axis[2,0], data = dataset[dataset["number_of_reviews"] < 20], x = "number_of_reviews").set(xlabel=None, ylabel=None)
+    sns.histplot( ax = axis[2,0], data = dataset[dataset["number_of_reviews"] < 20], x = "number_of_reviews", kde=True).set(xlabel=None, ylabel=None)
     sns.boxplot(ax = axis[3,0], data = dataset[dataset["number_of_reviews"] < 20], x = "number_of_reviews")
-    sns.kdeplot( ax = axis[2,1], data = dataset[dataset["availability_365"] < 100], x = "availability_365").set(ylabel=None, xlabel=None)
-    sns.boxplot( ax = axis[3,1], data = dataset[dataset["availability_365"] < 100], x = "availability_365")
+    sns.histplot( ax = axis[2,1], data = dataset[dataset["calculated_host_listings_count"] < 10], x = "calculated_host_listings_count", kde=True).set(ylabel=None, xlabel=None)
+    sns.boxplot( ax = axis[3,1], data = dataset[dataset["calculated_host_listings_count"] < 10], x = "calculated_host_listings_count")
     
     plt.tight_layout()
     plt.show()
@@ -139,9 +141,8 @@ def NumNumAnalysi(dataset, x, y_list):
     plt.tight_layout()
     plt.show()
 
-NumNumAnalysi(data, "price", ["minimum_nights", "number_of_reviews","availability_365"])
+NumNumAnalysi(data, "price", ["minimum_nights", "number_of_reviews","calculated_host_listings_count"])
 
-#Analisis categorico/categorico
 def CatCatAnalysi(dataset):
     #Creamos la figura
     fig, axis = plt.subplots(1, 2, figsize=(10,5))
@@ -155,72 +156,63 @@ def CatCatAnalysi(dataset):
 
 CatCatAnalysi(data)
 
-#Aplicamos OHE
-col_name = "neighbourhood_group"
+#Convertimos las columnas categoricas al Dtype category para optimizar los datos.
 
-def Encoder(dataset, enc_col):
-    #Creamos el codificador.
-    enc = OneHotEncoder(handle_unknown="ignore")
-
-    #Creamos el array que va a codificar
-    coder = dataset[enc_col].unique().reshape(-1,1) #Necesitamos que sea una array 2x2 para pasarla por el fit
-    index = list(coder.squeeze())
-    #Aplicamos la codificacion
-    enc.fit(coder)
-
-    dump(enc, open("../data/interim/ohe.sav", "wb"))
-    values = enc.transform(coder).toarray().squeeze().tolist()
-    result = enc.transform(dataset[[enc_col]]).toarray()
-
-    #Los guardamos en un json
-    pars_dict = {}
-
-    for i in range(len(index)):
-        pars_dict.update({index[i] : values[i]})
-    
-    with open (f"../data/interim/{enc_col}.json","w") as j:
-        json.dump(pars_dict, j)
-    
-    dataset[enc_col] = result
-
+def ObjectToCategory(dataset, col):
+    dataset[col] = dataset[col].astype("category")
     return dataset
 
 
-Encoder(data, col_name)
+ObjectToCategory(data, "neighbourhood_group")
+ObjectToCategory(data, "room_type")
 
-col_name = "room_type"
-Encoder(data, col_name)
+data.info()
 
-print(data)
+#Creamos el codificador
+
+def Encoder(dataset, col):
+    encoder = OneHotEncoder()
+    encoding = encoder.fit_transform(dataset[[col]])
+    dummie_col = pd.DataFrame(encoding.toarray(), columns=encoder.categories_)
+    dataset = pd.concat([dataset, dummie_col], axis = 1)
+    dataset.drop(col, axis=1, inplace=True)
+    return dataset
+
+data = (Encoder(data, "room_type"))
+data = (Encoder(data, "neighbourhood_group"))
+
+#Renombramos las columnas
+data.rename(columns = {('Entire home/apt',) : "entire_home", ('Private room',) : "private_room", ('Shared room',) : "shared_room", ('Bronx',) : "bronx", ('Brooklyn',) : "brooklyn", ('Manhattan',) : "manhattan", ('Queens',) : "queens", ('Staten Island',) : "staten_island"}, inplace=True)
 
 #Tabla de correlaciones
 fig, axis = plt.subplots(figsize=(10,7))
 
-sns.heatmap(data[["price", "neighbourhood_group","room_type","minimum_nights","number_of_reviews","availability_365"]].corr(), annot=True, fmt=".2f")
+sns.heatmap(data[["price","entire_home", "private_room", "shared_room", "bronx", "brooklyn", "manhattan", "queens", "staten_island", "minimum_nights","number_of_reviews","availability_365"]].corr(), annot=True, fmt=".2f")
 
 plt.tight_layout()
 plt.show()
 
 #Corroboración de la tabla
-fig, axis = plt.subplots(1,2,figsize=(10,5))
+fig, axis = plt.subplots(1,3,figsize=(15,5))
 
-sns.regplot(ax = axis[0], data = data, x = "price", y = "room_type")
-sns.regplot(ax = axis[1], data = data, x = "price", y = "neighbourhood_group")
+sns.regplot(ax = axis[0], data = data, x = "price", y = "entire_home")
+sns.regplot(ax = axis[1], data = data, x = "price", y = "private_room")
+sns.regplot(ax = axis[2], data = data, x = "price", y = "shared_room")
 
-sns.pairplot(data=data)
+plt.tight_layout()
+plt.show()
 
 # Comprobamos las metricas de la tabla.
 data.describe()
 
 #Grafica de outliers
-fig, axis = plt.subplots(2, 3, figsize=(10,5))
 
-sns.boxplot( ax = axis[0,0], data = data, y = "neighbourhood_group")
-sns.boxplot( ax  = axis[0,1], data = data, y = "room_type")
-sns.boxplot( ax = axis [0,2], data = data, y = "price")
-sns.boxplot( ax = axis[1,0], data = data, y = "minimum_nights")
-sns.boxplot( ax = axis[1,1], data = data, y = "number_of_reviews")
-sns.boxplot( ax = axis[1,2], data = data, y = "availability_365")
+fig, axis = plt.subplots(2, 2, figsize=(10,5))
+
+sns.boxplot( ax = axis [0,0], data = data, y = "price")
+sns.boxplot( ax = axis [0,1], data = data, y = "minimum_nights")
+sns.boxplot( ax = axis [1,0], data = data, y = "number_of_reviews")
+sns.boxplot( ax = axis [1,1], data = data, y = "availability_365")
 
 plt.tight_layout()
 plt.show()
@@ -262,16 +254,16 @@ TransOutliers (data_without_outliers, "availability_365")
 print(data_without_outliers)
 
 #Comprobamos si existen valores faltantes.
-data_with_outliers.isnull().sum().sort_values()
-data_without_outliers.isnull().sum().sort_values()
+data_with_outliers.isna().sum().sort_values()
+data_without_outliers.isna().sum().sort_values()
 
 # Primero dividimos los dataframes entre test y train
 
-features = ["neighbourhood_group","room_type","minimum_nights","number_of_reviews","availability_365"]
+features = ["entire_home","private_room","shared_room","bronx","brooklyn","manhattan","queens","staten_island","minimum_nights","number_of_reviews","availability_365"]
 target_feature = ["price"]
 
 def SplitData (dataset, num_features, target):
-    x = dataset.drop(target, axis = 1)[features]
+    x = dataset.drop(target, axis = 1)[num_features]
     y = dataset[target].squeeze()
 
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size = 0.2, random_state= 42)
@@ -279,7 +271,10 @@ def SplitData (dataset, num_features, target):
     return x_train, x_test, y_train, y_test
 
 x_train_with_outliers, x_test_with_outliers, y_train, y_test = SplitData(data_with_outliers, features, target_feature)
-x_train_without_outliers, x_test_without_outliers, y_train, y_test = SplitData(data_without_outliers, features, target_feature)
+x_train_without_outliers, x_test_without_outliers,_, _ = SplitData(data_without_outliers, features, target_feature)
+
+y_train.to_excel("../data/processed/y_train.xlsx")
+y_test.to_excel("../data/processed/y_test.xlsx")
 
 #Tenemos que escalar los dataset con Normalizacion y con Escala mM (min-Max)
 
@@ -326,7 +321,7 @@ x_test_with_outliers_mMScaler = MinMaxScaleData(x_test_with_outliers, features)
 x_test_without_outliers_mMScaler = MinMaxScaleData(x_test_without_outliers, features)
 
 #Seleccion de caracteristicas
-k = 3
+k = 11
 def SelectFeatures(dataset, y, filename, k = k):
     sel_model = SelectKBest(f_classif, k=k)
     sel_model.fit(dataset, y)
